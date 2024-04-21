@@ -7,15 +7,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 
-@Data
 @Component
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponsePojo implements Serializable {
-
-    private double footprint;
-
-    private String suggestion;
-
-    private String pledge;
+public class Messages implements Serializable {
+    private String role;
+    private String content;
 }

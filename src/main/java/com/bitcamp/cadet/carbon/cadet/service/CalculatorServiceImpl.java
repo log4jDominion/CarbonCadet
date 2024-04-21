@@ -11,51 +11,72 @@ import org.springframework.stereotype.Service;
 @Service
 public class CalculatorServiceImpl {
 
+    @Autowired
+    UserServiceImpl userService;
+
+    @Autowired
+    SuggestionServiceImpl suggestionService;
+
     public ResponsePojo calculateFootprint(CalculatorPojo calcPojo) {
-        Long totalFootprint = calcElectricityFootprint(calcPojo)
-                + calcWaterFootprint(calcPojo)
-                + calcTravelFootprint(calcPojo)
-                + calcFoodFootprint(calcPojo);
+        try {
 
-        String suggestion = "Suggestion";
+            UserPojo userPojoInfo = userService.checkAndInsertUser(calcPojo.getUser());
 
-        return new ResponsePojo(totalFootprint, suggestion);
+            Double totalFootprint = calcElectricityFootprint(calcPojo)
+                    + calcWaterFootprint(calcPojo)
+                    + calcTravelFootprint(calcPojo)
+                    + calcFoodFootprint(calcPojo);
+
+            userPojoInfo.setLastFootprint(String.valueOf(totalFootprint));
+
+            String suggestion = "Suggestion";
+                    //suggestionService.generateSuggestion(calcPojo);
+
+            userService.updateUserInfo(userPojoInfo);
+
+            return new ResponsePojo(totalFootprint, suggestion, userPojoInfo.getPledge());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    private Long calcElectricityFootprint(CalculatorPojo calcPojo) {
+    private Double calcElectricityFootprint(CalculatorPojo calcPojo) {
         ElectricityPojo electricityInfo = calcPojo.getElectricity();
-        Long emissionFactor = Long.parseLong(EmissionFactorEnums.valueOf(electricityInfo.getSource()).label);
+        Double emissionFactor = Double.parseDouble(EmissionFactorEnums.valueOf(electricityInfo.getElectricitySource()).label);
 
-        Long duration = Long.parseLong(electricityInfo.getDuration());
-        Long load = Long.parseLong(electricityInfo.getLoad());
-        Long efficiency = Long.parseLong(electricityInfo.getEfficiency());
+        Double duration = Double.parseDouble(electricityInfo.getDuration());
+        Double load = Double.parseDouble(electricityInfo.getLoad());
+        Double efficiency = Double.parseDouble(electricityInfo.getEfficiency());
 
         return (duration*load*emissionFactor)/efficiency;
     }
 
-    private Long calcWaterFootprint(CalculatorPojo calcPojo) {
+    private Double calcWaterFootprint(CalculatorPojo calcPojo) {
         WaterPojo waterInfo = calcPojo.getWater();
-        Long srcEmissionFactor = Long.parseLong(WaterSourceEnum.valueOf(waterInfo.getSource()).label);
+        Double srcEmissionFactor = Double.parseDouble(WaterSourceEnum.valueOf(waterInfo.getWaterSource()).label);
 
-        Long amount = Long.parseLong(waterInfo.getQuantity());
+        Double amount = Double.parseDouble(waterInfo.getQuantity());
 
         return srcEmissionFactor*amount;
     }
 
-    private Long calcTravelFootprint(CalculatorPojo calcPojo) {
+    private Double calcTravelFootprint(CalculatorPojo calcPojo) {
         TravelPojo travelInfo = calcPojo.getTravel();
-        Long vehicleEmissionFactor = Long.parseLong(VehicleFactorEnum.valueOf(travelInfo.getVehicle()).label);
+        Double vehicleEmissionFactor = Double.parseDouble(VehicleFactorEnum.valueOf(travelInfo.getVehicle()).label);
 
-        Long distance = Long.parseLong(travelInfo.getDistance());
+        Double distance = Double.parseDouble(travelInfo.getDistance());
 
         return vehicleEmissionFactor*distance;
     }
 
-    private Long calcFoodFootprint(CalculatorPojo calcPojo) {
+    private Double calcFoodFootprint(CalculatorPojo calcPojo) {
         FoodPojo foodInfo = calcPojo.getFood();
-        Long foodEmissionFactor = Long.parseLong(FoodFactorEnum.valueOf(foodInfo.getType()).label);
+        Double foodEmissionFactor = Double.parseDouble(FoodFactorEnum.valueOf(foodInfo.getType()).label);
 
-        Long consumption = Long.parseLong(foodInfo.getUsedAmt());
+        Double consumption = Double.parseDouble(foodInfo.getUsedAmt());
 
         return foodEmissionFactor*consumption;
     }
