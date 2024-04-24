@@ -64,4 +64,15 @@ public class DbDaoImpl {
         logger.info("Completed updating userinfo for userId : {}, rowsUpdated : {}...", userPojoInfo.getUserId(), rowsUpdated);
         return rowsUpdated;
     }
+
+    public int updatePledge(String userId, String pledge) {
+        logger.info("Started updating pledge for userId : {}...", userId);
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("userId", userId);
+        param.addValue("pledge", pledge);
+
+        int rowsUpdated = namedParameterJdbcTemplate.update("update public.user_info set pledge = :pledge where user_id = :userId", param);
+        logger.info("Completed updating userinfo for userId : {}, rowsUpdated : {}...", userId, rowsUpdated);
+        return rowsUpdated;
+    }
 }

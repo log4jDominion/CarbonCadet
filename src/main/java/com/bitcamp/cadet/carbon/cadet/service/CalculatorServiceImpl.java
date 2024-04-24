@@ -80,4 +80,6 @@ public class CalculatorServiceImpl {
 
         return foodEmissionFactor*consumption;
     }
+
+
 }
