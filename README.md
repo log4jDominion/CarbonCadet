@@ -1,1 +1,1 @@
-# CarbonCadet
+# Model-based carbon footprint calculator
